@@ -1,0 +1,19 @@
+name: ML_project2
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.7
+  - numpy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - jupyter
+  - ipykernel
+  - pylint
+  - black
+  - autopep8
+  - tensorflow
+  - pillow
+  - urllib3
+  - tensorflow-datasets
