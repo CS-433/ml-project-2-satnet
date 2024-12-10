@@ -1,12 +1,33 @@
 import matplotlib.image as mpimg
 import numpy as np
 from PIL import Image
+from sklearn.preprocessing import StandardScaler
 # Helper functions
 
 
 def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
+
+def load_data(root_training_dir,root_test_dir):
+    image_dir = root_training_dir + "images/"
+    gt_dir = root_training_dir + "groundtruth/"
+
+    files_train = os.listdir(image_dir)
+    folder_test = os.listdir(root_test_dir)
+
+    n_train = len(files_train)
+    n_test = len(folder_test)
+
+
+    imgs = [load_image(image_dir + files_train[i]) for i in range(n_train)]
+
+    gt_imgs = [load_image(gt_dir + files_train[i]) for i in range(n_train)]
+
+
+    imgs_test = [ load_image(os.path.join(root_test_dir, folder_test[i], f"{folder_test[i]}.png")) for i in range(n_test)]
+    
+    return imgs,gt_imgs,imgs_test,n_train,image_dir,files_train
 
 
 def img_float_to_uint8(img):
@@ -47,6 +68,42 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
+def standardization(X_train, X_test):
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    return X_train_scaled, X_test_scaled , scaler
+
+def extract_patches(patch_size,imgs,gt_imgs,n_train):
+
+    img_patches = [img_crop(imgs[i], patch_size, patch_size) for i in range(n_train)]
+    gt_patches = [img_crop(gt_imgs[i], patch_size, patch_size) for i in range(n_train)]
+
+    # Convert to numpy arrays
+    img_patches = np.array(img_patches)
+    gt_patches = np.array(gt_patches)
+
+    print(f"Shape of unflattened image patches : {img_patches.shape}\n"
+          f"Shape of unflattened ground truth patches : {gt_patches.shape} \n")
+
+    # Linearize list of patches
+    img_patches = np.asarray(
+        [
+            img_patches[i][j]
+            for i in range(len(img_patches))
+            for j in range(len(img_patches[i]))
+        ]
+    )
+    gt_patches = np.asarray(
+        [
+            gt_patches[i][j]
+            for i in range(len(gt_patches))
+            for j in range(len(gt_patches[i]))
+        ]
+    )
+    print(f"Shape of flattened image patches : {img_patches.shape}\n"
+          f"Shape of flattened ground truth patches : {gt_patches.shape} \n\n\n")
+    return img_patches,gt_patches
 
 # Extract 6-dimensional features consisting of average RGB color as well as variance
 def extract_features(img):
