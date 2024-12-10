@@ -7,7 +7,7 @@ from torchvision.io import read_image
 from torchvision.transforms import v2
 from utils.unet_structure import UNet_Structure
 
-class CnnTrainer(UNet_Structure):
+class UnetTrainer(UNet_Structure):
     def __init__(self,
                  data_kwargs: dict,
                  optimizer_kwargs: dict,

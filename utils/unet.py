@@ -1,8 +1,10 @@
-"""The U-Net class"""
+# U-Net Class
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from numpy import floor, ceil
+from math import ceil, floor
 from openpyxl.styles.builtins import output
 
 # We define a U-Net class with a classical architecture
@@ -66,7 +68,7 @@ class UNet(nn.Module):
 
     @staticmethod
     def copy_and_crop(left, right):
-        """Adjusting tensor size by padding to match sizes for concatenation."""
+        # Padding to adjust tensor size to be able to concatenate tensors (grey arrow) along th channel
         y_padding = right.size(2) - left.size(2)
         x_padding = right.size(3) - left.size(3)
         left = F.pad(left, [floor(x_padding/2), ceil(x_padding/2), floor(y_padding/2), ceil(y_padding/2)])

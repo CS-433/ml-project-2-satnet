@@ -1,11 +1,7 @@
-"""
-A simplified CNN class focused only on UNet model.
-"""
-
 import PIL.Image as Image
-import matplotlib.pyplot as plt
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 from torch.utils.data import TensorDataset, DataLoader
 from torchvision import transforms
 from utils.unet import UNet
@@ -17,10 +13,8 @@ class UNet_Structure:
         self.batch_size = 0
         self.mean = 0
         self.std = 0
-
         # Set the model to UNet
         self.model = UNet().to(torch.device(self.device))
-
         # declare evaluation metrics array
         self.train_loss = []
         self.validation_loss = []
