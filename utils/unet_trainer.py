@@ -1,3 +1,5 @@
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader, random_split
@@ -9,9 +11,9 @@ from SatDataset import SatDataset
 if __name__ == "__main__":
     LEARNING_RATE = 3e-4
     BATCH_SIZE = 32
-    EPOCHS = 2
-    DATA_PATH = ""
-    MODEL_SAVE_PATH = "/content/drive/MyDrive/uygar/unet-segmentation/models/unet.pth"
+    EPOCHS = 5
+    DATA_PATH = "../dataset/short_augmented_training"
+    MODEL_SAVE_PATH = "../models/unet.pth"
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     train_dataset = SatDataset(DATA_PATH)
@@ -26,7 +28,7 @@ if __name__ == "__main__":
                                 batch_size=BATCH_SIZE,
                                 shuffle=True)
 
-    model = UNet(in_channels=3, num_classes=1).to(device)
+    model = UNet(in_channels=3, out_channels=1).to(device)
     optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     criterion = nn.BCEWithLogitsLoss()
 
@@ -66,5 +68,5 @@ if __name__ == "__main__":
         print(f"Train Loss EPOCH {epoch + 1}: {train_loss:.4f}")
         print(f"Valid Loss EPOCH {epoch + 1}: {val_loss:.4f}")
         print("-" * 30)
-
     torch.save(model.state_dict(), MODEL_SAVE_PATH)
+    print("done")
