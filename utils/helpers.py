@@ -2,10 +2,12 @@ import os
 import matplotlib.image as mpimg
 import numpy as np
 from PIL import Image
+from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 import os
-# Helper functions
+import torch
 
+# Helper functions
 def value_to_class(v, foreground_threshold = 0.25):
     df = np.sum(v)
     if df > foreground_threshold:
@@ -184,5 +186,17 @@ def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
             j = patch_size * ((index // sqrt_n_patches) % sqrt_n_patches)
             i = patch_size * (index % sqrt_n_patches)
             f.writelines(f'{img_number:03d}_{j}_{i},{pixel}\n')
-            
-        
+
+def calculate_accuracy(y_pred, mask):
+    y_pred = torch.sigmoid(y_pred)
+    y_pred = (y_pred > 0.5) # Apply threshold to convert to binary
+    y_pred = y_pred.cpu().numpy().flatten()
+    mask = mask.cpu().numpy().flatten()
+    return accuracy_score(mask, y_pred)
+
+def save_mask(mask, path):
+    mask = mask.squeeze(0).cpu().detach().numpy()
+    mask = (mask > 0).astype(np.uint8)  # Convert to binary mask
+    if mask.ndim == 3 and mask.shape[2] == 1:
+        mask = mask[:, :, 0]  # Remove the last dimension if it is 1
+    Image.fromarray(mask * 255).save(path)
