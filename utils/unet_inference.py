@@ -132,7 +132,7 @@ def pred_show_image_grid(data_path, model_pth, device, output_dir):
         plt.imshow(predictions[i - 1], cmap="gray")
     plt.show()
 
-def single_image_inference(image_pth, model_pth, device):
+def single_image_inference(image_pth, model_pth, device, output_dir):
     model = UNet(in_channels=3, out_channels=1).to(device)
     model.load_state_dict(torch.load(model_pth, map_location=torch.device(device)))
 
@@ -146,7 +146,7 @@ def single_image_inference(image_pth, model_pth, device):
     mask = mask.permute(1, 2, 0)
     mask[mask < 0] = 0
     mask[mask > 0] = 1
-
+    save_mask(mask, os.path.join(output_dir, "single_image.png"))
     fig = plt.figure()
     fig.add_subplot(1, 1, 1)
     plt.imshow(mask, cmap="gray")
@@ -157,11 +157,9 @@ if __name__ == "__main__":
     DATA_PATH = "../dataset/short_testing"
     MODEL_PATH = "../models/unet.pth"
     OUTPUT_DIR = "../dataset/short_testing/predicted"
-
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Device: ", device)
     pred_show_image_grid(DATA_PATH, MODEL_PATH, device, OUTPUT_DIR)
-    single_image_inference(SINGLE_IMG_PATH, MODEL_PATH, device)
+    single_image_inference(SINGLE_IMG_PATH, MODEL_PATH, device, OUTPUT_DIR)
     print("Done")

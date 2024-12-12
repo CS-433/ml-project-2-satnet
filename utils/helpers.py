@@ -178,10 +178,16 @@ def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
             f.writelines(f'{img_number:03d}_{j}_{i},{pixel}\n')
 
 def calculate_accuracy(y_pred, mask):
+    # Apply sigmoid to predictions
     y_pred = torch.sigmoid(y_pred)
-    y_pred = (y_pred > 0.5) # Apply threshold to convert to binary
+    # Threshold predictions to binary values (0 or 1)
+    y_pred = (y_pred > 0.5).float()
+    # Convert both predictions and mask to NumPy arrays
     y_pred = y_pred.cpu().numpy().flatten()
     mask = mask.cpu().numpy().flatten()
+    # Ensure mask is also binary (optional sanity check)
+    mask = (mask > 0.5).astype(np.uint8)
+    # Compute accuracy
     return accuracy_score(mask, y_pred)
 
 def save_mask(mask, path):
