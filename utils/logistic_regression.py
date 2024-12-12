@@ -3,7 +3,7 @@ from sklearn.model_selection import GridSearchCV
 import numpy as np
 from utils.helpers import *
 
-def feature_extraction(img_patches,gt_patches):
+def feature_extraction(img_patches):
     X2d = np.asarray([extract_features_2d(img_patches[i]) for i in range(len(img_patches))])
     X6d = np.asarray([extract_features(img_patches[i]) for i in range(len(img_patches))])
     X8d = np.asarray([np.concatenate((X2d[i], X6d[i])) for i in range(len(X2d))])

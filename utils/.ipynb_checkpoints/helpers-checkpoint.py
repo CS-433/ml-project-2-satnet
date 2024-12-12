@@ -1,13 +1,44 @@
+import os
 import matplotlib.image as mpimg
 import numpy as np
 from PIL import Image
+from sklearn.preprocessing import StandardScaler
+import os
+
 # Helper functions
 
+def value_to_class(v, foreground_threshold = 0.25):
+    df = np.sum(v)
+    if df > foreground_threshold:
+        return 1
+    else:
+        return 0
 
 def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
 
+def load_data(folder_path, is_test=False):
+    if is_test:
+        # For test data
+        folder_test = os.listdir(folder_path)
+        n_files = len(folder_test)
+        images = [
+            load_image(os.path.join(folder_path, folder_test[i], f"{folder_test[i]}.png"))
+            for i in range(n_files)
+        ]
+        return images, n_files, folder_test
+    else:
+        # For training data
+        image_dir = os.path.join(folder_path, "images/")
+        gt_dir = os.path.join(folder_path, "groundtruth/")
+        file_names = os.listdir(image_dir)
+        n_files = len(file_names)
+
+        images = [load_image(os.path.join(image_dir, file_names[i])) for i in range(n_files)]
+        groundtruth = [load_image(os.path.join(gt_dir, file_names[i])) for i in range(n_files)]
+
+        return images, groundtruth, n_files, file_names
 
 def img_float_to_uint8(img):
     rimg = img - np.min(img)
@@ -47,6 +78,30 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
+def standardization(X_train, X_test):
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    return X_train_scaled, X_test_scaled , scaler
+
+def extract_patches(patch_size,imgs,n):
+    img_patches = [img_crop(imgs[i], patch_size, patch_size) for i in range(n)]
+
+    # Convert to numpy arrays
+    img_patches = np.array(img_patches)
+
+    print(f"Shape of unflattened patches : {img_patches.shape}")
+
+    # Linearize list of patches
+    img_patches = np.asarray(
+        [
+            img_patches[i][j]
+            for i in range(len(img_patches))
+            for j in range(len(img_patches[i]))
+        ]
+    )
+    print(f"Shape of flattened patches : {img_patches.shape}\n")
+    return img_patches
 
 # Extract 6-dimensional features consisting of average RGB color as well as variance
 def extract_features(img):
@@ -80,13 +135,6 @@ def extract_img_features(filename, patch_size = 16):
         [extract_features(img_patches[i]) for i in range(len(img_patches))]
     )
     return X
-
-def value_to_class(v, foreground_threshold = 0.25):
-    df = np.sum(v)
-    if df > foreground_threshold:
-        return 1
-    else:
-        return 0
     
 def label_to_img(imgwidth, imgheight, w, h, labels):
     im = np.zeros([imgwidth, imgheight])
@@ -127,122 +175,4 @@ def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
             i = patch_size * (index % sqrt_n_patches)
             f.writelines(f'{img_number:03d}_{j}_{i},{pixel}\n')
             
-            
-"""
-Helper functions to perform cross validation on logistic regression
-"""
-
-import warnings
-
-import numpy as np
-from sklearn import linear_model
-from sklearn.model_selection import cross_val_score
-
-
-'''
-def lin_reg_best_params(penalties, class_weights, x, y):
-    """
-    Perform cross validation to find the best parameters for a logistic regression model
-
-    :param penalties: list of penalties to try
-    :param class_weights: list of class weights to try
-    :param x: the features
-    :param y: the labels
-    :return: the best parameters and the best f1 score
-    """
-    # disable warnings for readability
-    warnings.filterwarnings('ignore')
-
-    best_score = -1
-    best_params = None
-
-    for penalty in penalties:
-        if penalty is None:
-            solvers = ['lbfgs', 'newton-cg', 'newton-cholesky', 'sag', 'saga']
-            cs = [1]
-            l1_ratios = [0]
-        elif penalty == 'l1':
-            solvers = ['liblinear', 'saga']
-            cs = np.logspace(-8, 10, 2)
-            l1_ratios = [1]
-        elif penalty == 'l2':
-            solvers = ['lbfgs', 'liblinear', 'newton-cg', 'newton-cholesky', 'sag', 'saga']
-            cs = np.logspace(-8, 10, 2)
-            l1_ratios = [0]
-        else:
-            solvers = ['saga']
-            cs = np.logspace(-8, 10, 2)
-            l1_ratios = np.linspace(0, 1, 10)
-
-        for solver in solvers:
-            for C in cs:
-                for class_weight in class_weights:
-                    for l1_ratio in l1_ratios:
-                        # evaluate the model
-                        logreg = linear_model.LogisticRegression(C=C,
-                                                                 penalty=penalty,
-                                                                 class_weight=class_weight,
-                                                                 solver=solver,
-                                                                 l1_ratio=l1_ratio,
-                                                                 max_iter=1000)
-                        f1_score = cross_val_score(logreg, x, y, cv=10, scoring="f1").mean()
-                        # update best score and parameters if necessary
-                        if f1_score > best_score:
-                            best_score = f1_score
-                            best_params = {'penalty': penalty,
-                                           'C': C,
-                                           'solver': solver,
-                                           'class_weight': class_weight,
-                                           'l1_ratio': l1_ratio}
-    warnings.filterwarnings("default")
-    return best_params, best_score
-'''
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV
-import numpy as np
-
-
-def optimize_logistic_regression(X, y):
-    param_grid = [
-        {
-            'penalty': ['l1', 'l2'],
-            'C': np.logspace(-6, 6, 20),
-            'solver': ['liblinear'],
-            'max_iter': [100, 1000]
-        },
-        {
-            'penalty': ['l2'],
-            'C': np.logspace(-6, 6, 20),
-            'solver': ['lbfgs', 'sag', 'newton-cg'],
-            'max_iter': [100, 1000]
-        },
-        {
-            'penalty': ['elasticnet'],
-            'C': np.logspace(-6, 6, 20),
-            'solver': ['saga'],
-            'l1_ratio': [0.1, 0.5, 0.9],
-            'max_iter': [100, 1000]
-        },
-        {
-            'penalty': ['none'],
-            'solver': ['lbfgs', 'sag', 'newton-cg'],
-            'max_iter': [100, 1000]
-        }
-    ]
-    clf = GridSearchCV(
-        LogisticRegression(class_weight='balanced'),
-        param_grid=param_grid,
-        cv=3,
-        scoring='f1',
-        verbose=1,
-        n_jobs=-1
-    )
-
-    clf.fit(X, y)
-
-    best_model = clf.best_estimator_
-    best_params = clf.best_params_
-    best_f1 = clf.best_score_
-    
-    return best_model,best_params,best_f1
+        

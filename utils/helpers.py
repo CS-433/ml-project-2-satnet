@@ -1,3 +1,4 @@
+#git
 import os
 import matplotlib.image as mpimg
 import numpy as np
@@ -19,25 +20,27 @@ def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
 
-def load_data(root_training_dir,root_test_dir):
-    image_dir = root_training_dir + "images/"
-    gt_dir = root_training_dir + "groundtruth/"
+def load_data(folder_path, is_test=False):
+    if is_test:
+        # For test data
+        folder_test = os.listdir(folder_path)
+        n_files = len(folder_test)
+        images = [
+            load_image(os.path.join(folder_path, folder_test[i], f"{folder_test[i]}.png"))
+            for i in range(n_files)
+        ]
+        return images, n_files, folder_test
+    else:
+        # For training data
+        image_dir = os.path.join(folder_path, "images/")
+        gt_dir = os.path.join(folder_path, "groundtruth/")
+        file_names = os.listdir(image_dir)
+        n_files = len(file_names)
 
-    files_train = os.listdir(image_dir)
-    folder_test = os.listdir(root_test_dir)
+        images = [load_image(os.path.join(image_dir, file_names[i])) for i in range(n_files)]
+        groundtruth = [load_image(os.path.join(gt_dir, file_names[i])) for i in range(n_files)]
 
-    n_train = len(files_train)
-    n_test = len(folder_test)
-
-
-    imgs = [load_image(image_dir + files_train[i]) for i in range(n_train)]
-
-    gt_imgs = [load_image(gt_dir + files_train[i]) for i in range(n_train)]
-
-
-    imgs_test = [ load_image(os.path.join(root_test_dir, folder_test[i], f"{folder_test[i]}.png")) for i in range(n_test)]
-    
-    return imgs,gt_imgs,imgs_test,n_train,image_dir,files_train
+        return images, groundtruth, n_files, file_names
 
 
 def img_float_to_uint8(img):
@@ -84,17 +87,13 @@ def standardization(X_train, X_test):
     X_test_scaled = scaler.transform(X_test)
     return X_train_scaled, X_test_scaled , scaler
 
-def extract_patches(patch_size,imgs,gt_imgs,n_train):
-
-    img_patches = [img_crop(imgs[i], patch_size, patch_size) for i in range(n_train)]
-    gt_patches = [img_crop(gt_imgs[i], patch_size, patch_size) for i in range(n_train)]
+def extract_patches(patch_size,imgs,n):
+    img_patches = [img_crop(imgs[i], patch_size, patch_size) for i in range(n)]
 
     # Convert to numpy arrays
     img_patches = np.array(img_patches)
-    gt_patches = np.array(gt_patches)
 
-    print(f"Shape of unflattened image patches : {img_patches.shape}\n"
-          f"Shape of unflattened ground truth patches : {gt_patches.shape} \n")
+    print(f"Shape of unflattened patches : {img_patches.shape}")
 
     # Linearize list of patches
     img_patches = np.asarray(
@@ -104,17 +103,8 @@ def extract_patches(patch_size,imgs,gt_imgs,n_train):
             for j in range(len(img_patches[i]))
         ]
     )
-    gt_patches = np.asarray(
-        [
-            gt_patches[i][j]
-            for i in range(len(gt_patches))
-            for j in range(len(gt_patches[i]))
-        ]
-    )
-    print(f"Shape of flattened image patches : {img_patches.shape}\n"
-          f"Shape of flattened ground truth patches : {gt_patches.shape} \n\n\n")
-    return img_patches,gt_patches
-
+    print(f"Shape of flattened patches : {img_patches.shape}\n")
+    return img_patches
 # Extract 6-dimensional features consisting of average RGB color as well as variance
 def extract_features(img):
     feat_m = np.mean(img, axis=(0, 1))
