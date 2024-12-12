@@ -153,13 +153,13 @@ def single_image_inference(image_pth, model_pth, device, output_dir):
     plt.show()
 
 if __name__ == "__main__":
-    SINGLE_IMG_PATH = "../dataset/short_testing/images/satImage_075.png"
-    DATA_PATH = "../dataset/short_testing"
+    SINGLE_IMG_PATH = "../dataset/mahmoud_testing/images/satImage_006.png"
+    DATA_PATH = "../dataset/mahmoud_testing"
     MODEL_PATH = "../models/unet.pth"
-    OUTPUT_DIR = "../dataset/short_testing/predicted"
+    OUTPUT_DIR = "../dataset/mahmoud_testing/predicted"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Device: ", device)
     pred_show_image_grid(DATA_PATH, MODEL_PATH, device, OUTPUT_DIR)
-    single_image_inference(SINGLE_IMG_PATH, MODEL_PATH, device, OUTPUT_DIR)
+    #single_image_inference(SINGLE_IMG_PATH, MODEL_PATH, device, OUTPUT_DIR)
     print("Done")
