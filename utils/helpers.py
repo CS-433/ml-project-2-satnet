@@ -2,8 +2,15 @@ import matplotlib.image as mpimg
 import numpy as np
 from PIL import Image
 from sklearn.preprocessing import StandardScaler
+import os
 # Helper functions
 
+def value_to_class(v, foreground_threshold = 0.25):
+    df = np.sum(v)
+    if df > foreground_threshold:
+        return 1
+    else:
+        return 0
 
 def load_image(infilename):
     data = mpimg.imread(infilename)
@@ -137,13 +144,6 @@ def extract_img_features(filename, patch_size = 16):
         [extract_features(img_patches[i]) for i in range(len(img_patches))]
     )
     return X
-
-def value_to_class(v, foreground_threshold = 0.25):
-    df = np.sum(v)
-    if df > foreground_threshold:
-        return 1
-    else:
-        return 0
     
 def label_to_img(imgwidth, imgheight, w, h, labels):
     im = np.zeros([imgwidth, imgheight])
