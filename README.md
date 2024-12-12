@@ -23,5 +23,12 @@ Orga:
     - logistic
     - cnn basic
     - u net
+    - 
+- un training set avec 80 images augmentées
+- normalization sur le training set augmented qu'on applique à tous les autres sets
+- un validation set avec 10 images augmentées
+- garder notre test set avec 10 images augmentées
+
+
 
 
