@@ -1,5 +1,6 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer, log_loss, f1_score
 import numpy as np
 from utils.helpers import *
 
@@ -41,11 +42,12 @@ def optimize_logistic_regression(X, y):
             'max_iter': [100, 1000]
         }
     ]
+    log_loss_scorer = make_scorer(log_loss, greater_is_better=False, needs_proba=True)
     clf = GridSearchCV(
         LogisticRegression(class_weight='balanced'),
         param_grid=param_grid,
         cv=10,
-        scoring='f1',
+        scoring=log_loss_scorer,
         verbose=1,
         n_jobs=-1
     )
@@ -59,3 +61,20 @@ def optimize_logistic_regression(X, y):
     
 
     return best_model, best_params, best_f1
+
+
+def find_best_treshold(model,x, y, tresholds):
+    best_threshold = None
+    best_f1 = -1
+
+    probabilities = model.predict_proba(x)[:, 1]
+
+    for threshold in tresholds:
+        y_pred = (probabilities > threshold).astype(int)
+        f1 = f1_score(y, y_pred)
+        if f1 > best_f1:
+            best_f1 = f1
+            best_threshold = threshold
+
+    return best_threshold
+
