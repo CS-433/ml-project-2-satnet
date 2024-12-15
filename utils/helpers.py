@@ -1,12 +1,10 @@
-#git
 import os
+import torch
 import matplotlib.image as mpimg
 import numpy as np
 from PIL import Image
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import StandardScaler
-import os
-import torch
 
 # Helper functions
 def value_to_class(v, foreground_threshold = 0.25):
@@ -177,22 +175,16 @@ def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
             i = patch_size * (index % sqrt_n_patches)
             f.writelines(f'{img_number:03d}_{j}_{i},{pixel}\n')
 
-def calculate_accuracy(y_pred, mask):
-    # Apply sigmoid to predictions
-    y_pred = torch.sigmoid(y_pred)
-    # Threshold predictions to binary values (0 or 1)
-    y_pred = (y_pred > 0.5).float()
-    # Convert both predictions and mask to NumPy arrays
-    y_pred = y_pred.cpu().numpy().flatten()
-    mask = mask.cpu().numpy().flatten()
-    # Ensure mask is also binary (optional sanity check)
-    mask = (mask > 0.5).astype(np.uint8)
-    # Compute accuracy
-    return accuracy_score(mask, y_pred)
-
 def save_mask(mask, path):
     mask = mask.squeeze(0).cpu().detach().numpy()
     mask = (mask > 0).astype(np.uint8)  # Convert to binary mask
     if mask.ndim == 3 and mask.shape[2] == 1:
         mask = mask[:, :, 0]  # Remove the last dimension if it is 1
     Image.fromarray(mask * 255).save(path)
+
+def calculate_metrics(y_pred, y_true):
+    y_pred = (y_pred > 0).float()
+    y_true = (y_true > 0).float()
+    accuracy = accuracy_score(y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten())
+    f1 = f1_score(y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten())
+    return accuracy, f1
