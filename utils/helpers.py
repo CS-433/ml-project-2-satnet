@@ -5,7 +5,9 @@ import numpy as np
 from PIL import Image
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import StandardScaler
-
+from cnn import SatelliteRoadCNN
+from SatDataset import SatDataset
+from torch.utils.data import DataLoader
 # Helper functions
 def value_to_class(v, foreground_threshold = 0.25):
     df = np.sum(v)
@@ -188,3 +190,59 @@ def calculate_metrics(y_pred, y_true):
     accuracy = accuracy_score(y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten())
     f1 = f1_score(y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten())
     return accuracy, f1
+
+def find_best_image(device, root,model_pth,treshhold):
+    model = SatelliteRoadCNN().to(device)
+    model.load_state_dict(torch.load(model_pth, map_location=torch.device(device)))
+    image_dataset = SatDataset(root)
+    train_dataloader = DataLoader(dataset=image_dataset,
+                                  batch_size=1,
+                                  shuffle=False)
+    f1_max = 0
+    
+    for idx, img_mask in enumerate(train_dataloader):
+            img = img_mask[0].float().to(device)
+            mask = img_mask[1].float().to(device)
+            mask = mask.squeeze(0).squeeze(0)
+            mask=(mask>=0.5).int()
+            grt = mask.cpu().numpy().flatten()
+            pred_mask = model(img)
+            pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
+            pred_mask = torch.sigmoid(pred_mask)
+            pred_mask = (pred_mask >= treshhold).int().cpu()
+            y_pred = pred_mask.numpy().flatten()
+            f1 = f1_score(grt,y_pred)
+            if(f1>f1_max):
+                f1_max = f1
+                img_good = img.squeeze(0).squeeze(0).cpu()
+                mask_good = pred_mask
+                grt_good = mask.squeeze(0).squeeze(0).cpu()
+    return img_good, mask_good,grt_good, f1_max
+
+def metrics_mean_std(device, root,model_pth,treshhold):
+    model = SatelliteRoadCNN().to(device)
+    print("Loading model")
+    model.load_state_dict(torch.load(model_pth, map_location=torch.device(device)))
+    image_dataset = SatDataset(root)
+    train_dataloader = DataLoader(dataset=image_dataset,
+                                  batch_size=1,
+                                  shuffle=False)
+    
+    accuracies = []
+    f1scores = []
+    for idx, img_mask in enumerate(train_dataloader):
+            img = img_mask[0].float().to(device)
+            mask = img_mask[1].float().to(device)
+            mask = mask.squeeze(0).squeeze(0)
+            mask=(mask>=0.5).int()
+            grt = mask.cpu().numpy().flatten()
+            pred_mask = model(img)
+            pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
+            pred_mask = torch.sigmoid(pred_mask)
+            pred_mask = (pred_mask >= treshhold).int().cpu()
+            y_pred = pred_mask.numpy().flatten()
+            f1 = f1_score(grt,y_pred)
+            acc = accuracy_score(grt,y_pred)
+            accuracies.append(acc)
+            f1scores.append(f1)
+    return np.mean(accuracies),np.std(accuracies), np.mean(f1scores), np.std(f1scores)
