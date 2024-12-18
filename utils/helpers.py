@@ -86,9 +86,6 @@ def img_float_to_uint8(img):
     """
     Converts a floating point image to an unsigned 8-bit integer image.
 
-    This function normalizes the floating point image to the range [0, 255]
-    and then converts it to uint8 format.
-
     Parameters:
     img (numpy.ndarray): A floating-point image, typically with values in [0, 1] or any floating point range.
 
@@ -104,10 +101,6 @@ def concatenate_images(img, gt_img):
     """
     Concatenates an image (`img`) and a ground truth image (`gt_img`) side by side.
     
-    If the ground truth image is grayscale, it is converted to a 3-channel image 
-    by replicating the grayscale values across the 3 channels. The final concatenated
-    image will be in RGB format.
-
     Parameters:
     img (numpy.ndarray): The input image to be concatenated, which can be a 3-channel (RGB) image.
     gt_img (numpy.ndarray): The ground truth image, which can be either grayscale or 3-channel (RGB).
@@ -135,9 +128,6 @@ def img_crop(im, w, h):
     """
     Crops an image into smaller patches of size (w, h).
 
-    The function divides the input image into patches of the specified width (`w`) 
-    and height (`h`), and returns a list of the cropped patches.
-
     Parameters:
     im (numpy.ndarray): The input image to be cropped, which can be either 2D (grayscale) or 3D (RGB).
     w (int): The width of each patch.
@@ -163,9 +153,6 @@ def standardization(X_train, X_test):
     """
     Standardizes the input training and testing datasets by scaling them to have zero mean and unit variance.
 
-    The function uses the StandardScaler from scikit-learn to standardize both the training and testing data. 
-    It first fits the scaler to the training data and then transforms both the training and testing data.
-
     Parameters:
     X_train (numpy.ndarray): The training dataset, where rows are samples and columns are features.
     X_test (numpy.ndarray): The testing dataset, where rows are samples and columns are features.
@@ -184,10 +171,6 @@ def standardization(X_train, X_test):
 def extract_patches(patch_size,imgs,n):
     """
     Extracts patches of a specified size from a list of images.
-
-    This function divides each image in the `imgs` list into smaller patches of size 
-    `(patch_size, patch_size)` using the `img_crop` function, and then flattens the list 
-    of patches into a 1D array.
 
     Parameters:
     patch_size (int): The width and height of the square patches to be extracted.
@@ -216,9 +199,6 @@ def extract_features(img):
     """
     Extracts basic statistical features (mean and variance) from an image.
 
-    This function computes the mean and variance of the pixel values for each color channel
-    (or for the entire image if grayscale), then concatenates these values into a single feature vector.
-
     Parameters:
     img (numpy.ndarray): The input image, which can be either grayscale or RGB (height x width x channels).
 
@@ -234,10 +214,6 @@ def extract_features(img):
 def extract_img_features(filename, patch_size = 16):
     """
     Extracts feature vectors from an image by dividing it into patches and computing statistical features for each patch.
-
-    This function loads an image from the provided filename, divides it into square patches of the specified size, 
-    and extracts basic features (mean and variance of pixel values) from each patch. The extracted features are 
-    returned as a 2D array where each row corresponds to a patch.
 
     Parameters:
     filename (str): The path to the image file from which features are to be extracted.
@@ -260,8 +236,6 @@ def extract_features_2d(img):
     """
     Extracts basic statistical features (mean and variance) from a 2D image.
 
-    This function computes the mean and variance of the pixel values across the entire 2D image.
-
     Parameters:
     img (numpy.ndarray): The input 2D image (height x width). It is assumed to be in grayscale format.
 
@@ -279,10 +253,6 @@ def extract_features_2d(img):
 def extract_img_features_2d(filename, patch_size = 16):
     """
     Extracts feature vectors from a 2D image by dividing it into patches and computing statistical features for each patch.
-
-    This function loads a 2D image (grayscale), divides it into square patches of the specified size, 
-    and extracts basic statistical features (mean and variance of pixel values) for each patch. 
-    The extracted features are returned as a 2D array where each row corresponds to a patch.
 
     Parameters:
     filename (str): The path to the image file from which features are to be extracted.
@@ -305,10 +275,6 @@ def extract_img_features_2d(filename, patch_size = 16):
 def label_to_img(imgwidth, imgheight, w, h, labels):
     """
     Reconstructs an image from a list of patch labels.
-
-    This function takes a list of labels (one per patch), and reconstructs 
-    the full image by assigning the corresponding label to the correct 
-    position of each patch in the image.
 
     Parameters:
     imgwidth (int): The width of the final image.
@@ -334,10 +300,6 @@ def make_img_overlay(img, predicted_img):
     """
     Superimposes a color mask (from predicted labels) onto the original image.
 
-    This function creates a color mask based on the predicted labels (binary or multi-class) 
-    and overlays it on top of the original image, with a specified transparency. The original 
-    image is displayed with a slight transparency, and the mask is blended with it for visualization.
-
     Parameters:
     img (numpy.ndarray): The original image to overlay the mask on. It should be in the range [0, 1] (float).
     predicted_img (numpy.ndarray): A binary or multi-class image where each pixel is a predicted label. 
@@ -360,11 +322,6 @@ def make_img_overlay(img, predicted_img):
 def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
     """
     Generates a CSV file for submission with image patch predictions.
-
-    This function takes the predicted values of image patches, along with the dimensions 
-    of the patches and the number of patches per image, and writes them to a CSV file 
-    in the required submission format. Each row in the CSV contains the ID of the image 
-    (with the patch coordinates) and the predicted value for that patch.
 
     Parameters:
     submission_filename (str): The path to the output CSV file where the predictions will be written.
@@ -389,11 +346,6 @@ def save_mask(mask, path):
     """
     Saves a binary mask as an image file.
 
-    This function takes a tensor or array representing a binary mask, converts it to a 
-    NumPy array, thresholds it to ensure it's binary (values of 0 or 1), and then saves 
-    it as an image file. The mask will be saved with pixel values in the range [0, 255] 
-    for visualization.
-
     Parameters:
     mask (torch.Tensor or numpy.ndarray): The input mask, typically a tensor that 
                                           needs to be squeezed and converted to a binary format.
@@ -413,13 +365,6 @@ def calculate_metrics(y_pred, y_true):
     """
     Calculates accuracy and F1-score for binary classification.
 
-    This function computes two common metrics used for evaluating binary classification performance:
-    - Accuracy: The proportion of correct predictions (both true positives and true negatives) out of all predictions.
-    - F1-score: The harmonic mean of precision and recall, providing a balance between the two.
-
-    The function assumes that `y_pred` and `y_true` are either PyTorch tensors or NumPy arrays and that
-    they represent binary classification results.
-
     Parameters:
     y_pred (torch.Tensor or numpy.ndarray): The predicted binary labels (values between 0 and 1).
     y_true (torch.Tensor or numpy.ndarray): The true binary labels (values between 0 and 1).
@@ -436,10 +381,6 @@ def calculate_metrics(y_pred, y_true):
 def find_best_image(device, root,model_pth,treshhold):
     """
     Finds the image with the best F1-score by comparing the predicted mask with the ground truth.
-
-    This function loads a pre-trained segmentation model, evaluates it on a dataset of satellite images,
-    and computes the F1-score for each image. It returns the image with the highest F1-score, along with 
-    the predicted mask and the ground truth mask for that image.
 
     Parameters:
     device (torch.device): The device (CPU or GPU) where the model and data should be loaded.
@@ -483,10 +424,6 @@ def find_best_image(device, root,model_pth,treshhold):
 def metrics_mean_std(device, root,model_pth,treshhold):
     """
     Calculates the mean and standard deviation of accuracy and F1-score for a segmentation model.
-
-    This function evaluates the performance of a pre-trained segmentation model on a dataset of satellite images.
-    For each image, it computes both the accuracy and the F1-score by comparing the predicted mask with the ground truth.
-    It then returns the mean and standard deviation of these metrics across the whole dataset.
 
     Parameters:
     device (torch.device): The device (CPU or GPU) where the model and data should be loaded.
