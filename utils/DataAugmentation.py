@@ -93,7 +93,6 @@ def DataAugmentation(
 
 
 class DatasetAugmentation(Dataset):
-
     def __init__(self, training_path, split_images=False, perform_transformations=True):
         self.training_path = training_path
         self.split = split_images

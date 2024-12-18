@@ -7,16 +7,19 @@ import os
 
 # Helper functions
 
-def value_to_class(v, foreground_threshold = 0.25):
+
+def value_to_class(v, foreground_threshold=0.25):
     df = np.sum(v)
     if df > foreground_threshold:
         return 1
     else:
         return 0
 
+
 def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
+
 
 def load_data(folder_path, is_test=False):
     if is_test:
@@ -24,7 +27,9 @@ def load_data(folder_path, is_test=False):
         folder_test = os.listdir(folder_path)
         n_files = len(folder_test)
         images = [
-            load_image(os.path.join(folder_path, folder_test[i], f"{folder_test[i]}.png"))
+            load_image(
+                os.path.join(folder_path, folder_test[i], f"{folder_test[i]}.png")
+            )
             for i in range(n_files)
         ]
         return images, n_files, folder_test
@@ -35,10 +40,15 @@ def load_data(folder_path, is_test=False):
         file_names = os.listdir(image_dir)
         n_files = len(file_names)
 
-        images = [load_image(os.path.join(image_dir, file_names[i])) for i in range(n_files)]
-        groundtruth = [load_image(os.path.join(gt_dir, file_names[i])) for i in range(n_files)]
+        images = [
+            load_image(os.path.join(image_dir, file_names[i])) for i in range(n_files)
+        ]
+        groundtruth = [
+            load_image(os.path.join(gt_dir, file_names[i])) for i in range(n_files)
+        ]
 
         return images, groundtruth, n_files, file_names
+
 
 def img_float_to_uint8(img):
     rimg = img - np.min(img)
@@ -78,13 +88,15 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
+
 def standardization(X_train, X_test):
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
-    return X_train_scaled, X_test_scaled , scaler
+    return X_train_scaled, X_test_scaled, scaler
 
-def extract_patches(patch_size,imgs,n):
+
+def extract_patches(patch_size, imgs, n):
     img_patches = [img_crop(imgs[i], patch_size, patch_size) for i in range(n)]
 
     # Convert to numpy arrays
@@ -103,6 +115,7 @@ def extract_patches(patch_size,imgs,n):
     print(f"Shape of flattened patches : {img_patches.shape}\n")
     return img_patches
 
+
 # Extract 6-dimensional features consisting of average RGB color as well as variance
 def extract_features(img):
     feat_m = np.mean(img, axis=(0, 1))
@@ -120,7 +133,7 @@ def extract_features_2d(img):
 
 
 # Extract features for a given image
-def extract_img_features_2d(filename, patch_size = 16):
+def extract_img_features_2d(filename, patch_size=16):
     img = load_image(filename)
     img_patches = img_crop(img, patch_size, patch_size)
     X = np.asarray(
@@ -128,14 +141,14 @@ def extract_img_features_2d(filename, patch_size = 16):
     )
     return X
 
-def extract_img_features(filename, patch_size = 16):
+
+def extract_img_features(filename, patch_size=16):
     img = load_image(filename)
     img_patches = img_crop(img, patch_size, patch_size)
-    X = np.asarray(
-        [extract_features(img_patches[i]) for i in range(len(img_patches))]
-    )
+    X = np.asarray([extract_features(img_patches[i]) for i in range(len(img_patches))])
     return X
-    
+
+
 def label_to_img(imgwidth, imgheight, w, h, labels):
     im = np.zeros([imgwidth, imgheight])
     idx = 0
@@ -158,6 +171,7 @@ def make_img_overlay(img, predicted_img):
     new_img = Image.blend(background, overlay, 0.2)
     return new_img
 
+
 def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
     """
     Generates a csv file of predictions from the given array of patches
@@ -167,12 +181,10 @@ def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
     :param sqrt_n_patches: the square root of the number of patches per image
     :param patch_size: the width and height in pixels of each patch
     """
-    with open(submission_filename, 'w') as f:
-        f.write('id,prediction\n')
+    with open(submission_filename, "w") as f:
+        f.write("id,prediction\n")
         for index, pixel in enumerate(array):
-            img_number = 1 + index // (sqrt_n_patches ** 2)
+            img_number = 1 + index // (sqrt_n_patches**2)
             j = patch_size * ((index // sqrt_n_patches) % sqrt_n_patches)
             i = patch_size * (index % sqrt_n_patches)
-            f.writelines(f'{img_number:03d}_{j}_{i},{pixel}\n')
-            
-        
+            f.writelines(f"{img_number:03d}_{j}_{i},{pixel}\n")
