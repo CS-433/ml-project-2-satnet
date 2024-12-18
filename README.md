@@ -2,7 +2,7 @@
 
 This repository contains the code and the report of the project `Road Segmentation From Satellite Images`, which is the project 2 of the 
 ([CS-433](https://edu.epfl.ch/coursebook/fr/machine-learning-CS-433)) course at the École Polytechnique Fédérale de Lausanne 
-([EPFL](https://www.epfl.ch/en/)). 
+([EPFL](https://www.epfl.ch/en/)). This project focuses on binary pixel-wise classification to determine whether each pixel in an image belongs to a road or not, facilitating the segmentation of road areas. The findings of our research and the achieved performance metrics are documented in the PDF file available within this repository.
 
 *Note : The original training and test datasets can be found [here](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation/dataset_files).
 The used datasets and models can be found in the [Google Drive](https://drive.google.com/drive/folders/1iJobZW7g3ZYpGy5liyJC1xlxVRjsFFpq?usp=drive_link)
