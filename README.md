@@ -55,6 +55,7 @@ Mahmoud Dokmak, Romain Corbel, Guilhem Destriau
     - `random.ipynb`: jupyter notebook summarizing our random model
     - `LogisticRegressionfct.ipynb`: jupyter notebook summarizing our logistic regression models
     - `run.ipynb`: jupyter notebook to run to train, test and submit the U-Net model. It is  the one to run to be able to reproduce our `submission.csv` file
+    - `report.pdf`: the report of our project
 
 ## Usage
 <hr style="clear:both">
