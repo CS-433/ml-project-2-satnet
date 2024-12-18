@@ -14,6 +14,21 @@ import json
 import numpy as np
 
 def training_cnn():
+    """
+    Trains the SatelliteRoadCNN model on a dataset of satellite images and their corresponding road masks.
+
+    Hyperparameters:
+    - LEARNING_RATE (float): Learning rate for the optimizer.
+    - BATCH_SIZE (int): Batch size for the DataLoader.
+    - EPOCHS (int): Number of training epochs.
+    - WEIGHT_DECAY (float): L2 regularization parameter for the optimizer.
+    - DATA_PATH (str): Path to the dataset.
+    - MODEL_SAVE_PATH (str): Path to save the trained model.
+    - METRICS_SAVE_PATH (str): Path to save the training and validation metrics.
+
+    Returns:
+    - None: The function saves the trained model and metrics to disk and prints progress during training.
+    """
     LEARNING_RATE = 3e-4
     BATCH_SIZE = 8
     EPOCHS = 10

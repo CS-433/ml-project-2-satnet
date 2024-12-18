@@ -13,6 +13,17 @@ from helpers import *
 from tqdm import tqdm
 from sklearn.metrics import f1_score,confusion_matrix
 def tuning(device, root,model_pth):
+    """
+    Evaluates the performance of the SatelliteRoadCNN model across a range of threshold values.
+
+    Args:
+    - model_pth (str): Path to the pre-trained model.
+    - root (str): Path to the dataset.
+    - device (torch.device): Device to run the model on (e.g., 'cuda' or 'cpu').
+
+    Returns:
+    - None: The function prints the best threshold and corresponding F1 score.
+    """
     model = SatelliteRoadCNN().to(device)
     print("Loading model")
     model.load_state_dict(torch.load(model_pth, map_location=torch.device(device)))
