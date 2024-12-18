@@ -134,17 +134,22 @@ def find_best_treshold(model, x, y, tresholds):
 
     Returns:
     float: The threshold value that maximizes the F1 score.
+    float: The best f1 score
+    float: The best accuracy score
+    np.ndarray: All the f1 scores obtained with the tresholds
     """
     best_threshold = None
     best_f1 = -1
 
     probabilities = model.predict_proba(x)[:, 1]
-
+    f1s = []
     for threshold in tresholds:
         y_pred = (probabilities > threshold).astype(int)
         f1 = f1_score(y, y_pred)
+        f1s.append(f1)
         if f1 > best_f1:
             best_f1 = f1
             best_threshold = threshold
+            best_acc = accuracy_score(y, y_pred)
 
-    return best_threshold
+    return best_threshold, best_f1, best_acc, f1s
