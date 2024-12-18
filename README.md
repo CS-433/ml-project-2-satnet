@@ -58,4 +58,4 @@ Mahmoud Dokmak, Romain Corbel, Guilhem Destriau
 ## Usage
 <hr style="clear:both">
 
-To generate our
+To generate our submission file, you only need the download from this [Google Drive]() the `final_unet.pth` model which corresponds to our best model, the U-Net model trained on the `augmented_dataset` of 3000 images. Then, you can run the `run.ipynb` notebook to train, test and create the `submission.csv` file. As default, we commented the training part, so by running all, only the inference and the creation of the csv is performed. We recommend to run the notebook on Google Colab as it is the environment we used to train and test our models. Furthermore, the notebook is already set up to work on Google Colab.
