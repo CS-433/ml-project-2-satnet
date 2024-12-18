@@ -1,13 +1,11 @@
 # Image Processing - Road Segmentation From Satellite Images
 
-This reposotory contains the code and the report of the project `Road Segmentation From Satellite Images`, which is the project 2 of the 
+This repository contains the code and the report of the project `Road Segmentation From Satellite Images`, which is the project 2 of the 
 ([CS-433](https://edu.epfl.ch/coursebook/fr/machine-learning-CS-433)) course at the École Polytechnique Fédérale de Lausanne 
-([EPFL](https://www.epfl.ch/en/)). The project involves binary categorization of each pixel in an image as either road 
-or not road, enabling the segmentation of road sections. The results of our research and the performance achieved in 
-this work can be found in the PDF file of this repository.
+([EPFL](https://www.epfl.ch/en/)). 
 
 *Note : The original training and test datasets can be found [here](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation/dataset_files).
-The used datasets and models can be found in the [Google Drive]()
+The used datasets and models can be found in the [Google Drive](https://drive.google.com/drive/folders/1iJobZW7g3ZYpGy5liyJC1xlxVRjsFFpq?usp=drive_link)
 
 
 **Authors:** : 
@@ -20,10 +18,11 @@ Mahmoud Dokmak, Romain Corbel, Guilhem Destriau
 - `/ml-project-2-satnet`
     - `/dataset`
         - `/augmented_dataset`: contains the augmented dataset with 3000 images that we used to train our final model
-        - `/dataset_1000_images`: contains a dataset of 1000 images that we used to train our first models
+        - `/dataset_1000_images`: contains a dataset of 1000 images that we used to train our first cnn models
         - `/TrainingInde`: contains another dataset of 1000 images that we used to train our logistic regression models
         - `/training`: contains the original training dataset
-        - `/test_dataset`: contains the original testing dataset reformatted to work with our models, and a folder to store the predictions
+        - `/test_dataset`: contains the original testing dataset reformatted to work with our cnn models, and a folder to store the predictions
+        - `/test_set_images`: contains the original testing dataset used to test the logistic regression models
     - `/models`:
       - `/submission.csv`: contains the submission files for the AI Crowd Contest
       - `/final_unet.pth`: savings for the final UNet model trained on the `augmented_dataset` of 3000 images
@@ -49,6 +48,8 @@ Mahmoud Dokmak, Romain Corbel, Guilhem Destriau
       - `test_unet.py`: test the U-Net model
       - `unet_trainer.py`: implement the training process for U-Net
       - `unet_inference.py`: implement the inference process for U-Net
+      - `cnn_trainer.py`: implement the training process for CNN
+      - `cnn_tuning.py`: implement the tuning process for CNN
       - `mask_to_submissions.py`: implement the submission process
     - `ExploratoryDataAnalysis.ipynb`: jupyter notebook summarizing our data analysis
     - `random.ipynb`: jupyter notebook summarizing our random model
@@ -58,4 +59,4 @@ Mahmoud Dokmak, Romain Corbel, Guilhem Destriau
 ## Usage
 <hr style="clear:both">
 
-To generate our submission file, you only need the download from this [Google Drive]() the `final_unet.pth` model which corresponds to our best model, the U-Net model trained on the `augmented_dataset` of 3000 images. Then, you can run the `run.ipynb` notebook to train, test and create the `submission.csv` file. As default, we commented the training part, so by running all, only the inference and the creation of the csv is performed. We recommend to run the notebook on Google Colab as it is the environment we used to train and test our models. Furthermore, the notebook is already set up to work on Google Colab.
+To generate our submission file, you only need the download from this [Google Drive](https://drive.google.com/drive/folders/1iJobZW7g3ZYpGy5liyJC1xlxVRjsFFpq?usp=drive_link) the `final_unet.pth` model which corresponds to our best model, the U-Net model trained on the `augmented_dataset` of 3000 images. Then, you can run the `run.ipynb` notebook to train, test and create the `submission.csv` file. As default, we commented the training part, so by running all, only the inference and the creation of the csv is performed. We recommend to run the notebook on Google Colab as it is the environment we used to train and test our models. Furthermore, the notebook is already set up to work on Google Colab.
