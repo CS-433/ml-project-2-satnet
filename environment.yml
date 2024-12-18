@@ -1,19 +1,16 @@
-name: ML_project2
+name: ml
 channels:
   - defaults
-  - conda-forge
 dependencies:
-  - python=3.7
-  - numpy
+  - python=3.10
   - pandas
-  - matplotlib
-  - scikit-learn
+  - numpy=1.26.2
+  - matplotlib=3.8.1
   - jupyter
-  - ipykernel
-  - pylint
-  - black
-  - autopep8
-  - tensorflow
-  - pillow
-  - urllib3
-  - tensorflow-datasets
+  - notebook
+  - pytest
+  - gitpython
+  - scikit-learn
+  - torchvision
+  - tqdm
+prefix: /Users/mahmouddokmak/.conda/envs/ml
