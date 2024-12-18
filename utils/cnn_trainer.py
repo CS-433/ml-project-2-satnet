@@ -11,6 +11,7 @@ from PIL import Image
 from sklearn.metrics import accuracy_score
 from helpers import *
 import json
+import numpy as np
 
 def training_cnn():
     LEARNING_RATE = 3e-4
@@ -85,9 +86,13 @@ def training_cnn():
 
                 y_pred = model(img)
                 loss = criterion(y_pred, mask)
-
+                pred_mask = y_pred.squeeze(0).squeeze(0).cpu().detach()
+                pred_mask = torch.sigmoid(pred_mask)
+                pred_mask = (pred_mask >= 0.5).int().cpu()
+                y_pred = pred_mask.numpy().flatten()
+                grt = mask.cpu().numpy().flatten()
+                accuracy = accuracy_score(grt,y_pred)
                 val_running_loss += loss.item()
-                accuracy = calculate_accuracy(y_pred, mask)
                 val_running_accuracy += accuracy
                 
         val_loss = val_running_loss / (idx + 1)
@@ -108,4 +113,7 @@ def training_cnn():
     with open(METRICS_SAVE_PATH, "w") as f:
         json.dump(metrics, f)
     print("done")
-training_cnn()
+
+
+if __name__ == "__main__":
+    training_cnn()

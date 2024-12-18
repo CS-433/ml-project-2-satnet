@@ -21,42 +21,6 @@ def tuning(device, root,model_pth):
                                   batch_size=1,
                                   shuffle=False)
     treshold = np.arange(0.01,0.05,0.001)
-    """
-    f1score = []
-    for idx, img_mask in enumerate(train_dataloader):
-        img = img_mask[0].float().to(device)
-        mask = img_mask[1].int().to(device)
-        mask = mask.squeeze(0).squeeze(0).cpu()
-        pred_mask = model(img)
-        pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
-        pred_mask = torch.sigmoid(pred_mask)
-        pred_mask = (pred_mask >= 0.05).int().cpu()
-        predictions= np.array(pred_mask).ravel()
-        print(pred_mask[mask==1])
-        
-        mask = np.array(mask).ravel()
-        fig = plt.figure()
-        
-        print(predictions[mask==1])
-        fig.add_subplot(1, 1, 1)
-        plt.imshow(pred_mask, cmap="gray")
-        plt.show()
-        print(confusion_matrix(mask, predictions))
-    
-
-    for idx, img_mask in enumerate(train_dataloader):
-            img = img_mask[0].float().to(device)
-            mask = img_mask[1].float().to(device)
-            mask = mask.squeeze(0).squeeze(0).cpu().numpy()
-            pred_mask = model(img)
-            pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
-            pred_mask = torch.sigmoid(pred_mask)
-            pred_mask = (pred_mask >= 0.021).int().cpu()
-            fig = plt.figure()
-            fig.add_subplot(1, 1, 1)
-            plt.imshow(pred_mask, cmap="gray")
-            plt.show()
-    """
     
     f1scores = []
     for tresh in tqdm(treshold):
