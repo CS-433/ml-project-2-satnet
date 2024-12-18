@@ -5,8 +5,8 @@ import numpy as np
 from PIL import Image
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import StandardScaler
-from cnn import SatelliteRoadCNN
-from SatDataset import SatDataset
+from utils.cnn import SatelliteRoadCNN
+from utils.SatDataset import SatDataset
 from torch.utils.data import DataLoader
 # Helper functions
 def value_to_class(v, foreground_threshold = 0.25):
