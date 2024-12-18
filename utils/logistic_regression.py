@@ -8,6 +8,7 @@ from sklearn.metrics import make_scorer, log_loss, f1_score
 import numpy as np
 from utils.helpers import *
 
+
 def feature_extraction(img_patches):
     """
     Extracts features from image patches using multiple feature extraction methods.
@@ -22,13 +23,22 @@ def feature_extraction(img_patches):
         - X6d (np.ndarray): A 2D numpy array of features extracted using the 6D method.
         - X8d (np.ndarray): A 2D numpy array where each feature vector is a concatenation of the 2D and 6D features.
     """
-    X2d = np.asarray([extract_features_2d(img_patches[i]) for i in range(len(img_patches))])
-    X6d = np.asarray([extract_features(img_patches[i]) for i in range(len(img_patches))])
+    X2d = np.asarray(
+        [extract_features_2d(img_patches[i]) for i in range(len(img_patches))]
+    )
+    X6d = np.asarray(
+        [extract_features(img_patches[i]) for i in range(len(img_patches))]
+    )
     X8d = np.asarray([np.concatenate((X2d[i], X6d[i])) for i in range(len(X2d))])
-    print("Dimensions of the three different feature extraction methods (2D,6D,8D): {},{} and {}\n".format(X2d.shape,X6d.shape,X8d.shape))
-    return X2d,X6d,X8d
+    print(
+        "Dimensions of the three different feature extraction methods (2D,6D,8D): {},{} and {}\n".format(
+            X2d.shape, X6d.shape, X8d.shape
+        )
+    )
+    return X2d, X6d, X8d
 
-def label_extraction(gt_patches,foreground_threshold = 0.25):
+
+def label_extraction(gt_patches, foreground_threshold=0.25):
     """
     Extracts binary labels for image patches based on the foreground threshold.
 
@@ -40,11 +50,17 @@ def label_extraction(gt_patches,foreground_threshold = 0.25):
                                             Defaults to 0.25.
 
     Returns:
-    np.ndarray: A 1D numpy array of binary labels (`0` or `1`) for each patch, where `1` represents foreground 
+    np.ndarray: A 1D numpy array of binary labels (`0` or `1`) for each patch, where `1` represents foreground
                 and `0` represents background.
     """
-    y = np.asarray([value_to_class(np.mean(gt_patches[i]),foreground_threshold = 0.25) for i in range(len(gt_patches))])
+    y = np.asarray(
+        [
+            value_to_class(np.mean(gt_patches[i]), foreground_threshold=0.25)
+            for i in range(len(gt_patches))
+        ]
+    )
     return y
+
 
 def optimize_logistic_regression(X, y):
     """
@@ -58,43 +74,43 @@ def optimize_logistic_regression(X, y):
                                             Defaults to 0.25.
 
     Returns:
-    np.ndarray: A 1D numpy array of binary labels (`0` or `1`) for each patch, where `1` represents foreground 
+    np.ndarray: A 1D numpy array of binary labels (`0` or `1`) for each patch, where `1` represents foreground
                 and `0` represents background.
     """
     param_grid = [
         {
-            'penalty': ['l1', 'l2'],
-            'C': np.logspace(-6, 6, 10),
-            'solver': ['liblinear'],
-            'max_iter': [100, 1000]
+            "penalty": ["l1", "l2"],
+            "C": np.logspace(-6, 6, 10),
+            "solver": ["liblinear"],
+            "max_iter": [100, 1000],
         },
         {
-            'penalty': ['l2'],
-            'C': np.logspace(-6, 6, 10),
-            'solver': ['lbfgs', 'sag', 'newton-cg'],
-            'max_iter': [100, 1000]
+            "penalty": ["l2"],
+            "C": np.logspace(-6, 6, 10),
+            "solver": ["lbfgs", "sag", "newton-cg"],
+            "max_iter": [100, 1000],
         },
         {
-            'penalty': ['elasticnet'],
-            'C': np.logspace(-6, 6, 10),
-            'solver': ['saga'],
-            'l1_ratio': [0.1, 0.5, 0.9],
-            'max_iter': [100, 1000]
+            "penalty": ["elasticnet"],
+            "C": np.logspace(-6, 6, 10),
+            "solver": ["saga"],
+            "l1_ratio": [0.1, 0.5, 0.9],
+            "max_iter": [100, 1000],
         },
         {
-            'penalty': ['none'],
-            'solver': ['lbfgs', 'sag', 'newton-cg'],
-            'max_iter': [100, 1000]
-        }
+            "penalty": ["none"],
+            "solver": ["lbfgs", "sag", "newton-cg"],
+            "max_iter": [100, 1000],
+        },
     ]
     log_loss_scorer = make_scorer(log_loss, greater_is_better=False, needs_proba=True)
     clf = GridSearchCV(
-        LogisticRegression(class_weight='balanced'),
+        LogisticRegression(class_weight="balanced"),
         param_grid=param_grid,
         cv=10,
         scoring=log_loss_scorer,
         verbose=1,
-        n_jobs=-1
+        n_jobs=-1,
     )
 
     clf.fit(X, y)
@@ -103,12 +119,10 @@ def optimize_logistic_regression(X, y):
     best_params = clf.best_params_
     best_f1 = clf.best_score_
 
-    
-
     return best_model, best_params, best_f1
 
 
-def find_best_treshold(model,x, y, tresholds):
+def find_best_treshold(model, x, y, tresholds):
     """
     Find the best classification threshold for a given model by maximizing the F1 score.
 
@@ -134,4 +148,3 @@ def find_best_treshold(model,x, y, tresholds):
             best_threshold = threshold
 
     return best_threshold
-

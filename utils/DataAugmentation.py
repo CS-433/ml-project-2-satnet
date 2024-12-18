@@ -9,8 +9,13 @@ from torchvision.io import read_image, ImageReadMode
 from torchvision.transforms import v2
 
 
-def DataAugmentation(nb: int, training_folder: str, augmented_image_folder: str, augmented_groundtruth_folder: str,
-                    split_images: bool = False):
+def DataAugmentation(
+    nb: int,
+    training_folder: str,
+    augmented_image_folder: str,
+    augmented_groundtruth_folder: str,
+    split_images: bool = False,
+):
     """
     Function that augments the dataset with some transformation applied to images, and save them to disk
 
@@ -23,14 +28,16 @@ def DataAugmentation(nb: int, training_folder: str, augmented_image_folder: str,
     :param split_images: whether the images are split or not
     """
 
-
-
-    train_set = DatasetAugmentation(training_path=training_folder, split_images=split_images, perform_transformations=False)
+    train_set = DatasetAugmentation(
+        training_path=training_folder,
+        split_images=split_images,
+        perform_transformations=False,
+    )
     train_dataloader = DataLoader(train_set, batch_size=1, shuffle=False)
     nb_images = len(train_dataloader)
     to_pil = v2.ToPILImage()
-    
-    #initialisation of the dataset
+
+    # initialisation of the dataset
 
     for idx, (image, groundtruth) in enumerate(train_dataloader):
         # get transformed image and groundtruth from dataloader
@@ -38,24 +45,51 @@ def DataAugmentation(nb: int, training_folder: str, augmented_image_folder: str,
         groundtruth = to_pil(groundtruth.squeeze(0))
 
         # save image to disk
-        image.save(path.join(training_folder, augmented_image_folder, f'satImage_{idx + 1:06d}.png'))
-        groundtruth.save(path.join(training_folder, augmented_groundtruth_folder, f'satImage_{idx + 1:06d}.png'))
+        image.save(
+            path.join(
+                training_folder, augmented_image_folder, f"satImage_{idx + 1:06d}.png"
+            )
+        )
+        groundtruth.save(
+            path.join(
+                training_folder,
+                augmented_groundtruth_folder,
+                f"satImage_{idx + 1:06d}.png",
+            )
+        )
 
-    transform_train_set = DatasetAugmentation(training_path=training_folder, split_images=split_images, perform_transformations=True)
-    transform_train_dataloader = DataLoader(transform_train_set, batch_size=1, shuffle=False)
+    transform_train_set = DatasetAugmentation(
+        training_path=training_folder,
+        split_images=split_images,
+        perform_transformations=True,
+    )
+    transform_train_dataloader = DataLoader(
+        transform_train_set, batch_size=1, shuffle=False
+    )
     for i in range(nb):
         for idx, (image, groundtruth) in enumerate(transform_train_dataloader):
             image = to_pil(image.squeeze(0))
             groundtruth = to_pil(groundtruth.squeeze(0))
 
             # compute the image index
-            image_idx =  (i+1) * nb_images + idx + 1
+            image_idx = (i + 1) * nb_images + idx + 1
             # save image to disk
-            image.save(path.join(training_folder, augmented_image_folder, f'satImage_{image_idx:06d}.png'))
+            image.save(
+                path.join(
+                    training_folder,
+                    augmented_image_folder,
+                    f"satImage_{image_idx:06d}.png",
+                )
+            )
 
             # save gt to disk
-            groundtruth.save(path.join(training_folder, augmented_groundtruth_folder, f'satImage_{image_idx:06d}.png'))
-
+            groundtruth.save(
+                path.join(
+                    training_folder,
+                    augmented_groundtruth_folder,
+                    f"satImage_{image_idx:06d}.png",
+                )
+            )
 
 
 class DatasetAugmentation(Dataset):
@@ -65,13 +99,15 @@ class DatasetAugmentation(Dataset):
         self.split = split_images
         self.transformation = perform_transformations
         if split_images:
-            self.images = sorted(listdir(path.join(training_path, 'split_images')))
-            self.groundtruth = sorted(listdir(path.join(training_path, 'split_groundtruth')))
+            self.images = sorted(listdir(path.join(training_path, "split_images")))
+            self.groundtruth = sorted(
+                listdir(path.join(training_path, "split_groundtruth"))
+            )
         else:
-            self.images = sorted(listdir(path.join(training_path, 'images')))
-            self.groundtruth = sorted(listdir(path.join(training_path, 'groundtruth')))
-        
-        #define all the possible transformations
+            self.images = sorted(listdir(path.join(training_path, "images")))
+            self.groundtruth = sorted(listdir(path.join(training_path, "groundtruth")))
+
+        # define all the possible transformations
         self.CropResized = v2.RandomResizedCrop(size=400, antialias=True)
         self.FlipHorizotale = v2.RandomHorizontalFlip(p=0.5)
         self.FlipVertical = v2.RandomVerticalFlip(p=0.5)
@@ -79,17 +115,25 @@ class DatasetAugmentation(Dataset):
         self.Blur = v2.RandomApply([v2.GaussianBlur(5)], p=0.5)
         self.Brightness = v2.RandomApply([v2.ColorJitter(brightness=(0.5, 1.5))], p=0.5)
         self.Contrast = v2.RandomApply([v2.ColorJitter(contrast=(0.5, 1.5))], p=0.25)
-        self.Saturation = v2.RandomApply([v2.ColorJitter(saturation=(0.5, 1.5))], p=0.25)
+        self.Saturation = v2.RandomApply(
+            [v2.ColorJitter(saturation=(0.5, 1.5))], p=0.25
+        )
 
-    def __getitem__(self,image_idx):
+    def __getitem__(self, image_idx):
 
         if self.split:
-            image_path = path.join(self.training_path,'split_images', self.images[image_idx])
-            groundtruth_path = path.join(self.training_path,'split_groundtruth', self.groundtruth[image_idx])
+            image_path = path.join(
+                self.training_path, "split_images", self.images[image_idx]
+            )
+            groundtruth_path = path.join(
+                self.training_path, "split_groundtruth", self.groundtruth[image_idx]
+            )
         else:
-            image_path = path.join(self.training_path,'images', self.images[image_idx])
-            groundtruth_path = path.join(self.training_path,'groundtruth', self.groundtruth[image_idx])
-        
+            image_path = path.join(self.training_path, "images", self.images[image_idx])
+            groundtruth_path = path.join(
+                self.training_path, "groundtruth", self.groundtruth[image_idx]
+            )
+
         image = read_image(image_path, ImageReadMode.RGB)
         groundtruth = read_image(groundtruth_path, ImageReadMode.RGB)
 
@@ -101,10 +145,10 @@ class DatasetAugmentation(Dataset):
             regroupment = self.FlipHorizotale(regroupment)
             regroupment = self.FlipVertical(regroupment)
 
-            #separate again Image and Groundtruth in order to modify only the Image
+            # separate again Image and Groundtruth in order to modify only the Image
             image, groundtruth = regroupment[0], regroupment[1]
 
-            #perform transformation for the Image 
+            # perform transformation for the Image
             image = self.Blur(image)
             image = self.Brightness(image)
             image = self.Contrast(image)
@@ -114,9 +158,6 @@ class DatasetAugmentation(Dataset):
         groundtruth = v2.Grayscale()(groundtruth)
 
         return image, groundtruth
-    
+
     def __len__(self):
         return len(self.images)
-
-
-

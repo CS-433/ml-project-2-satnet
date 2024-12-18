@@ -1,4 +1,5 @@
 import os
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import torch
 import numpy as np
@@ -25,10 +26,16 @@ if __name__ == "__main__":
     train_dataset = SatDataset(DATA_PATH_TRAINING, training=True)
     val_dataset = SatDataset(DATA_PATH_VALIDATION, training=True)
 
-    train_dataloader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    val_dataloader = DataLoader(dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    train_dataloader = DataLoader(
+        dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True
+    )
+    val_dataloader = DataLoader(
+        dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True
+    )
     model = UNet(in_channels=3, out_channels=1).to(device)
-    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
+    optimizer = optim.AdamW(
+        model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY
+    )
     criterion = nn.BCEWithLogitsLoss()
     metrics = {
         "train_loss": [],
@@ -36,7 +43,7 @@ if __name__ == "__main__":
         "train_accuracy": [],
         "val_accuracy": [],
         "train_f1": [],
-        "val_f1": []
+        "val_f1": [],
     }
     for epoch in tqdm(range(EPOCHS)):
         model.train()

@@ -1,11 +1,13 @@
 # U-Net Class
 import os
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from math import ceil, floor
 from openpyxl.styles.builtins import output
+
 
 # We define a U-Net class with a classical architecture
 class UNet(nn.Module):
@@ -55,6 +57,7 @@ class UNet(nn.Module):
         self.double_conv8 = self.double_conv(128, 64)
         # Final layer (dark green arrow)
         self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
+
     @staticmethod
     def double_conv(in_channels, out_channels):
         return nn.Sequential(
@@ -63,7 +66,7 @@ class UNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
     @staticmethod
@@ -71,7 +74,15 @@ class UNet(nn.Module):
         # Padding to adjust tensor size to be able to concatenate tensors (grey arrow) along th channel
         y_padding = right.size(2) - left.size(2)
         x_padding = right.size(3) - left.size(3)
-        left = F.pad(left, [floor(x_padding/2), ceil(x_padding/2), floor(y_padding/2), ceil(y_padding/2)])
+        left = F.pad(
+            left,
+            [
+                floor(x_padding / 2),
+                ceil(x_padding / 2),
+                floor(y_padding / 2),
+                ceil(y_padding / 2),
+            ],
+        )
         return torch.cat([left, right], dim=1)
 
     def forward(self, x):

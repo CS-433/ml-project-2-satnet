@@ -1,8 +1,10 @@
 # Test for the UNet model
 import os
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import torch
 from utils.unet import UNet
+
 
 def test_unet():
     print("Starting test...")
@@ -15,7 +17,6 @@ def test_unet():
     print("Output Size:", output.size())
     print("Test completed.")
 
+
 if __name__ == "__main__":
     test_unet()
-
-

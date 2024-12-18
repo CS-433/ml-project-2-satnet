@@ -13,13 +13,14 @@ from utils.cnn import SatelliteRoadCNN
 from utils.SatDataset import SatDataset
 from torch.utils.data import DataLoader
 
-def value_to_class(v, foreground_threshold = 0.25):
+
+def value_to_class(v, foreground_threshold=0.25):
     """
     Classifies the input value `v` based on a foreground threshold.
 
     Parameters:
     v (array-like): A numerical array or list where the sum is evaluated.
-    foreground_threshold (float, optional): The threshold above which the input is classified as '1'. 
+    foreground_threshold (float, optional): The threshold above which the input is classified as '1'.
                                             Default is 0.25.
 
     Returns:
@@ -30,6 +31,7 @@ def value_to_class(v, foreground_threshold = 0.25):
         return 1
     else:
         return 0
+
 
 def load_image(infilename):
     """
@@ -44,17 +46,18 @@ def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
 
+
 def load_data(folder_path, is_test=False):
     """
     Loads images and groundtruth data from the specified folder path. Can handle both training and testing data.
 
     Parameters:
     folder_path (str): The root folder path containing the data.
-    is_test (bool, optional): If True, loads test data (images only). 
+    is_test (bool, optional): If True, loads test data (images only).
                                If False, loads training data (images and groundtruth). Default is False.
 
     Returns:
-    tuple: 
+    tuple:
         - A list of loaded images as NumPy arrays.
         - The number of files (n_files).
         - A list of file names (for training data).
@@ -65,7 +68,9 @@ def load_data(folder_path, is_test=False):
         folder_test = os.listdir(folder_path)
         n_files = len(folder_test)
         images = [
-            load_image(os.path.join(folder_path, folder_test[i], f"{folder_test[i]}.png"))
+            load_image(
+                os.path.join(folder_path, folder_test[i], f"{folder_test[i]}.png")
+            )
             for i in range(n_files)
         ]
         return images, n_files, folder_test
@@ -76,8 +81,12 @@ def load_data(folder_path, is_test=False):
         file_names = os.listdir(image_dir)
         n_files = len(file_names)
 
-        images = [load_image(os.path.join(image_dir, file_names[i])) for i in range(n_files)]
-        groundtruth = [load_image(os.path.join(gt_dir, file_names[i])) for i in range(n_files)]
+        images = [
+            load_image(os.path.join(image_dir, file_names[i])) for i in range(n_files)
+        ]
+        groundtruth = [
+            load_image(os.path.join(gt_dir, file_names[i])) for i in range(n_files)
+        ]
 
         return images, groundtruth, n_files, file_names
 
@@ -100,7 +109,7 @@ def img_float_to_uint8(img):
 def concatenate_images(img, gt_img):
     """
     Concatenates an image (`img`) and a ground truth image (`gt_img`) side by side.
-    
+
     Parameters:
     img (numpy.ndarray): The input image to be concatenated, which can be a 3-channel (RGB) image.
     gt_img (numpy.ndarray): The ground truth image, which can be either grayscale or 3-channel (RGB).
@@ -149,6 +158,7 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
+
 def standardization(X_train, X_test):
     """
     Standardizes the input training and testing datasets by scaling them to have zero mean and unit variance.
@@ -158,7 +168,7 @@ def standardization(X_train, X_test):
     X_test (numpy.ndarray): The testing dataset, where rows are samples and columns are features.
 
     Returns:
-    tuple: 
+    tuple:
         - X_train_scaled (numpy.ndarray): The standardized training dataset.
         - X_test_scaled (numpy.ndarray): The standardized testing dataset.
         - scaler (StandardScaler): The fitted StandardScaler object, which can be used to transform other datasets.
@@ -166,9 +176,10 @@ def standardization(X_train, X_test):
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
-    return X_train_scaled, X_test_scaled , scaler
+    return X_train_scaled, X_test_scaled, scaler
 
-def extract_patches(patch_size,imgs,n):
+
+def extract_patches(patch_size, imgs, n):
     """
     Extracts patches of a specified size from a list of images.
 
@@ -178,7 +189,7 @@ def extract_patches(patch_size,imgs,n):
     n (int): The number of images in the list `imgs` to process.
 
     Returns:
-    numpy.ndarray: A 1D array of image patches, where each patch is of size (patch_size, patch_size) 
+    numpy.ndarray: A 1D array of image patches, where each patch is of size (patch_size, patch_size)
                     or (patch_size, patch_size, channels) depending on the image format.
     """
     img_patches = [img_crop(imgs[i], patch_size, patch_size) for i in range(n)]
@@ -211,7 +222,8 @@ def extract_features(img):
     feat = np.append(feat_m, feat_v)
     return feat
 
-def extract_img_features(filename, patch_size = 16):
+
+def extract_img_features(filename, patch_size=16):
     """
     Extracts feature vectors from an image by dividing it into patches and computing statistical features for each patch.
 
@@ -220,15 +232,13 @@ def extract_img_features(filename, patch_size = 16):
     patch_size (int, optional): The size of the square patches (height and width). Default is 16.
 
     Returns:
-    numpy.ndarray: A 2D array where each row is a feature vector extracted from a patch. 
-                    The number of rows corresponds to the number of patches, and each feature vector 
+    numpy.ndarray: A 2D array where each row is a feature vector extracted from a patch.
+                    The number of rows corresponds to the number of patches, and each feature vector
                     contains the mean and variance of pixel values for each color channel.
     """
     img = load_image(filename)
     img_patches = img_crop(img, patch_size, patch_size)
-    X = np.asarray(
-        [extract_features(img_patches[i]) for i in range(len(img_patches))]
-    )
+    X = np.asarray([extract_features(img_patches[i]) for i in range(len(img_patches))])
     return X
 
 
@@ -250,7 +260,7 @@ def extract_features_2d(img):
 
 
 # Extract features for a given image
-def extract_img_features_2d(filename, patch_size = 16):
+def extract_img_features_2d(filename, patch_size=16):
     """
     Extracts feature vectors from a 2D image by dividing it into patches and computing statistical features for each patch.
 
@@ -259,8 +269,8 @@ def extract_img_features_2d(filename, patch_size = 16):
     patch_size (int, optional): The size of the square patches (height and width). Default is 16.
 
     Returns:
-    numpy.ndarray: A 2D array where each row is a feature vector extracted from a patch. 
-                    The number of rows corresponds to the number of patches, and each feature vector 
+    numpy.ndarray: A 2D array where each row is a feature vector extracted from a patch.
+                    The number of rows corresponds to the number of patches, and each feature vector
                     contains the mean and variance of pixel values for the entire patch.
     """
     img = load_image(filename)
@@ -271,7 +281,6 @@ def extract_img_features_2d(filename, patch_size = 16):
     return X
 
 
-    
 def label_to_img(imgwidth, imgheight, w, h, labels):
     """
     Reconstructs an image from a list of patch labels.
@@ -281,7 +290,7 @@ def label_to_img(imgwidth, imgheight, w, h, labels):
     imgheight (int): The height of the final image.
     w (int): The width of each patch.
     h (int): The height of each patch.
-    labels (list or numpy.ndarray): A list or array of labels, one per patch, 
+    labels (list or numpy.ndarray): A list or array of labels, one per patch,
                                     that will be used to fill the image.
 
     Returns:
@@ -302,7 +311,7 @@ def make_img_overlay(img, predicted_img):
 
     Parameters:
     img (numpy.ndarray): The original image to overlay the mask on. It should be in the range [0, 1] (float).
-    predicted_img (numpy.ndarray): A binary or multi-class image where each pixel is a predicted label. 
+    predicted_img (numpy.ndarray): A binary or multi-class image where each pixel is a predicted label.
                                     It is used to create the color mask. Values are expected to be in [0, 1].
 
     Returns:
@@ -319,6 +328,7 @@ def make_img_overlay(img, predicted_img):
     new_img = Image.blend(background, overlay, 0.2)
     return new_img
 
+
 def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
     """
     Generates a CSV file for submission with image patch predictions.
@@ -334,22 +344,23 @@ def array_to_submission(submission_filename, array, sqrt_n_patches, patch_size):
     Returns:
     None: Writes the predictions directly to the specified CSV file.
     """
-    with open(submission_filename, 'w') as f:
-        f.write('id,prediction\n')
+    with open(submission_filename, "w") as f:
+        f.write("id,prediction\n")
         for index, pixel in enumerate(array):
-            img_number = 1 + index // (sqrt_n_patches ** 2)
+            img_number = 1 + index // (sqrt_n_patches**2)
             j = patch_size * ((index // sqrt_n_patches) % sqrt_n_patches)
             i = patch_size * (index % sqrt_n_patches)
-            f.writelines(f'{img_number:03d}_{j}_{i},{pixel}\n')
+            f.writelines(f"{img_number:03d}_{j}_{i},{pixel}\n")
+
 
 def save_mask(mask, path):
     """
     Saves a binary mask as an image file.
 
     Parameters:
-    mask (torch.Tensor or numpy.ndarray): The input mask, typically a tensor that 
+    mask (torch.Tensor or numpy.ndarray): The input mask, typically a tensor that
                                           needs to be squeezed and converted to a binary format.
-    path (str): The file path where the mask image will be saved. The file extension 
+    path (str): The file path where the mask image will be saved. The file extension
                 should be supported by PIL (e.g., `.png`, `.jpg`, etc.).
 
     Returns:
@@ -360,6 +371,7 @@ def save_mask(mask, path):
     if mask.ndim == 3 and mask.shape[2] == 1:
         mask = mask[:, :, 0]  # Remove the last dimension if it is 1
     Image.fromarray(mask * 255).save(path)
+
 
 def calculate_metrics(y_pred, y_true):
     """
@@ -374,11 +386,14 @@ def calculate_metrics(y_pred, y_true):
     """
     y_pred = (y_pred > 0).float()
     y_true = (y_true > 0).float()
-    accuracy = accuracy_score(y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten())
+    accuracy = accuracy_score(
+        y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten()
+    )
     f1 = f1_score(y_true.cpu().numpy().flatten(), y_pred.cpu().numpy().flatten())
     return accuracy, f1
 
-def find_best_image(device, root,model_pth,treshhold):
+
+def find_best_image(device, root, model_pth, treshhold):
     """
     Finds the image with the best F1-score by comparing the predicted mask with the ground truth.
 
@@ -397,31 +412,30 @@ def find_best_image(device, root,model_pth,treshhold):
     model = SatelliteRoadCNN().to(device)
     model.load_state_dict(torch.load(model_pth, map_location=torch.device(device)))
     image_dataset = SatDataset(root)
-    train_dataloader = DataLoader(dataset=image_dataset,
-                                  batch_size=1,
-                                  shuffle=False)
+    train_dataloader = DataLoader(dataset=image_dataset, batch_size=1, shuffle=False)
     f1_max = 0
-    
-    for idx, img_mask in enumerate(train_dataloader):
-            img = img_mask[0].float().to(device)
-            mask = img_mask[1].float().to(device)
-            mask = mask.squeeze(0).squeeze(0)
-            mask=(mask>=0.5).int()
-            grt = mask.cpu().numpy().flatten()
-            pred_mask = model(img)
-            pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
-            pred_mask = torch.sigmoid(pred_mask)
-            pred_mask = (pred_mask >= treshhold).int().cpu()
-            y_pred = pred_mask.numpy().flatten()
-            f1 = f1_score(grt,y_pred)
-            if(f1>f1_max):
-                f1_max = f1
-                img_good = img.squeeze(0).squeeze(0).cpu()
-                mask_good = pred_mask
-                grt_good = mask.squeeze(0).squeeze(0).cpu()
-    return img_good, mask_good,grt_good, f1_max
 
-def metrics_mean_std(device, root,model_pth,treshhold):
+    for idx, img_mask in enumerate(train_dataloader):
+        img = img_mask[0].float().to(device)
+        mask = img_mask[1].float().to(device)
+        mask = mask.squeeze(0).squeeze(0)
+        mask = (mask >= 0.5).int()
+        grt = mask.cpu().numpy().flatten()
+        pred_mask = model(img)
+        pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
+        pred_mask = torch.sigmoid(pred_mask)
+        pred_mask = (pred_mask >= treshhold).int().cpu()
+        y_pred = pred_mask.numpy().flatten()
+        f1 = f1_score(grt, y_pred)
+        if f1 > f1_max:
+            f1_max = f1
+            img_good = img.squeeze(0).squeeze(0).cpu()
+            mask_good = pred_mask
+            grt_good = mask.squeeze(0).squeeze(0).cpu()
+    return img_good, mask_good, grt_good, f1_max
+
+
+def metrics_mean_std(device, root, model_pth, treshhold):
     """
     Calculates the mean and standard deviation of accuracy and F1-score for a segmentation model.
 
@@ -442,25 +456,23 @@ def metrics_mean_std(device, root,model_pth,treshhold):
     print("Loading model")
     model.load_state_dict(torch.load(model_pth, map_location=torch.device(device)))
     image_dataset = SatDataset(root)
-    train_dataloader = DataLoader(dataset=image_dataset,
-                                  batch_size=1,
-                                  shuffle=False)
-    
+    train_dataloader = DataLoader(dataset=image_dataset, batch_size=1, shuffle=False)
+
     accuracies = []
     f1scores = []
     for idx, img_mask in enumerate(train_dataloader):
-            img = img_mask[0].float().to(device)
-            mask = img_mask[1].float().to(device)
-            mask = mask.squeeze(0).squeeze(0)
-            mask=(mask>=0.5).int()
-            grt = mask.cpu().numpy().flatten()
-            pred_mask = model(img)
-            pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
-            pred_mask = torch.sigmoid(pred_mask)
-            pred_mask = (pred_mask >= treshhold).int().cpu()
-            y_pred = pred_mask.numpy().flatten()
-            f1 = f1_score(grt,y_pred)
-            acc = accuracy_score(grt,y_pred)
-            accuracies.append(acc)
-            f1scores.append(f1)
-    return np.mean(accuracies),np.std(accuracies), np.mean(f1scores), np.std(f1scores)
+        img = img_mask[0].float().to(device)
+        mask = img_mask[1].float().to(device)
+        mask = mask.squeeze(0).squeeze(0)
+        mask = (mask >= 0.5).int()
+        grt = mask.cpu().numpy().flatten()
+        pred_mask = model(img)
+        pred_mask = pred_mask.squeeze(0).squeeze(0).cpu().detach()
+        pred_mask = torch.sigmoid(pred_mask)
+        pred_mask = (pred_mask >= treshhold).int().cpu()
+        y_pred = pred_mask.numpy().flatten()
+        f1 = f1_score(grt, y_pred)
+        acc = accuracy_score(grt, y_pred)
+        accuracies.append(acc)
+        f1scores.append(f1)
+    return np.mean(accuracies), np.std(accuracies), np.mean(f1scores), np.std(f1scores)

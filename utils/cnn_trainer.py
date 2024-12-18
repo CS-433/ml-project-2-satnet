@@ -13,6 +13,7 @@ from helpers import *
 import json
 import numpy as np
 
+
 def training_cnn():
     """
     Trains the SatelliteRoadCNN model on a dataset of satellite images and their corresponding road masks.
@@ -33,33 +34,39 @@ def training_cnn():
     BATCH_SIZE = 8
     EPOCHS = 10
     WEIGHT_DECAY = 1e-3
-    DATA_PATH = 'dataset/training'
+    DATA_PATH = "dataset/training"
     MODEL_SAVE_PATH = "models/cnn_100_batch8.pth"
     METRICS_SAVE_PATH = "models/cnn_100_batch16.json"
     current_path = os.getcwd()
-    DATA_PATH = os.path.join(current_path,DATA_PATH)
-    MODEL_SAVE_PATH = os.path.join(current_path,MODEL_SAVE_PATH)
+    DATA_PATH = os.path.join(current_path, DATA_PATH)
+    MODEL_SAVE_PATH = os.path.join(current_path, MODEL_SAVE_PATH)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     train_dataset = SatDataset(DATA_PATH)
-  
-    generator = torch.Generator().manual_seed(42)
-    train_dataset, val_dataset = random_split(train_dataset, [0.8, 0.2], generator=generator)
 
-    train_dataloader = DataLoader(dataset=train_dataset,
-                                  batch_size=BATCH_SIZE,
-                                  shuffle=True)
-    val_dataloader = DataLoader(dataset=val_dataset,
-                                batch_size=BATCH_SIZE,
-                                shuffle=True)
+    generator = torch.Generator().manual_seed(42)
+    train_dataset, val_dataset = random_split(
+        train_dataset, [0.8, 0.2], generator=generator
+    )
+
+    train_dataloader = DataLoader(
+        dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True
+    )
+    val_dataloader = DataLoader(
+        dataset=val_dataset, batch_size=BATCH_SIZE, shuffle=True
+    )
 
     model = SatelliteRoadCNN().to(device)
-    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE,weight_decay=WEIGHT_DECAY)
-    criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([0.2]).to(device)).to(device)
+    optimizer = optim.AdamW(
+        model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY
+    )
+    criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([0.2]).to(device)).to(
+        device
+    )
     metrics = {
         "train_loss": [],
         "val_loss": [],
         "train_accuracy": [],
-        "val_accuracy": []
+        "val_accuracy": [],
     }
     for epoch in tqdm(range(EPOCHS)):
         model.train()
@@ -68,23 +75,23 @@ def training_cnn():
         for idx, img_mask in enumerate(tqdm(train_dataloader)):
             img = img_mask[0].float().to(device)
             mask = img_mask[1].float().to(device)
-            #mask = (mask>=0.5).float().to(device)
-            #print(img.shape)
+            # mask = (mask>=0.5).float().to(device)
+            # print(img.shape)
             y_pred = model(img)
 
             optimizer.zero_grad()
 
             loss = criterion(y_pred, mask)
             train_running_loss += loss.item()
-            
+
             mask = mask.squeeze(0).squeeze(0)
-            mask=(mask>=0.5).int()
+            mask = (mask >= 0.5).int()
             pred_mask = y_pred.squeeze(0).squeeze(0).cpu().detach()
             pred_mask = torch.sigmoid(pred_mask)
             pred_mask = (pred_mask >= 0.5).int().cpu()
             y_pred = pred_mask.numpy().flatten()
             grt = mask.cpu().numpy().flatten()
-            accuracy = accuracy_score(grt,y_pred)
+            accuracy = accuracy_score(grt, y_pred)
             accuracies.append(accuracy)
             loss.backward()
             optimizer.step()
@@ -106,24 +113,22 @@ def training_cnn():
                 pred_mask = (pred_mask >= 0.5).int().cpu()
                 y_pred = pred_mask.numpy().flatten()
                 grt = mask.cpu().numpy().flatten()
-                accuracy = accuracy_score(grt,y_pred)
+                accuracy = accuracy_score(grt, y_pred)
                 val_running_loss += loss.item()
                 val_running_accuracy += accuracy
-                
+
         val_loss = val_running_loss / (idx + 1)
         val_accuracy = val_running_accuracy / (idx + 1)
         metrics["val_loss"].append(val_loss)
         metrics["val_accuracy"].append(val_accuracy)
         metrics["train_loss"].append(train_loss)
         metrics["train_accuracy"].append(np.mean(accuracies))
-        
+
         print("-" * 30)
         print(f"Train Loss EPOCH {epoch + 1}: {train_loss:.4f}")
         print(f"Valid Loss EPOCH {epoch + 1}: {val_loss:.4f}")
         print("-" * 30)
 
-    
-    
     torch.save(model.state_dict(), MODEL_SAVE_PATH)
     with open(METRICS_SAVE_PATH, "w") as f:
         json.dump(metrics, f)
