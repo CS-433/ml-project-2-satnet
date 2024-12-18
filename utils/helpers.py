@@ -1,3 +1,7 @@
+"""
+Helper functions to load and display images
+"""
+
 import os
 import torch
 import matplotlib.image as mpimg
@@ -8,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from utils.cnn import SatelliteRoadCNN
 from utils.SatDataset import SatDataset
 from torch.utils.data import DataLoader
-# Helper functions
+
 def value_to_class(v, foreground_threshold = 0.25):
     """
     Classifies the input value `v` based on a foreground threshold.
