@@ -1,4 +1,4 @@
-# Image Processing - Road Segmentation From Satellite Images
+# Road Segmentation From Satellite Images
 
 
 This repository contains the code and the report of the project `Road Segmentation From Satellite Images`, which is the project 2 of the 
