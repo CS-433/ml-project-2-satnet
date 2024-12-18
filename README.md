@@ -6,7 +6,7 @@ This repository contains the code and the report of the project `Road Segmentati
 ([EPFL](https://www.epfl.ch/en/)). This project focuses on binary pixel-wise classification to determine whether each pixel in an image belongs to a road or not, facilitating the segmentation of road areas. The findings of our research and the achieved performance metrics are documented in the PDF file available within this repository.
 
 *Note : The original training and test datasets can be found [here](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation/dataset_files).
-The used datasets and the trained models can be found in the [Google Drive](https://drive.google.com/drive/folders/1iJobZW7g3ZYpGy5liyJC1xlxVRjsFFpq?usp=drive_link)
+The used datasets and the trained models can be found in the [Google Drive](https://drive.google.com/drive/folders/1iJobZW7g3ZYpGy5liyJC1xlxVRjsFFpq?usp=sharing)
 
 
 **Authors:** : 
@@ -61,7 +61,7 @@ Mahmoud Dokmak, Romain Corbel, Guilhem Destriau
 ## Usage
 <hr style="clear:both">
 
-To generate our submission file, you only need the download from this [Google Drive](https://drive.google.com/drive/folders/1iJobZW7g3ZYpGy5liyJC1xlxVRjsFFpq?usp=drive_link) the `final_unet.pth` model (which corresponds to our best model, the U-Net model trained on the `augmented_dataset` of 3000 images) and put it in `models` (You can also download the whole `models` folder and replace the current empty one). Then, you can run the `run.ipynb` notebook to train, test and create the `submission.csv` file.
+To generate our submission file, you only need the download from this [Google Drive](https://drive.google.com/drive/folders/1iJobZW7g3ZYpGy5liyJC1xlxVRjsFFpq?usp=sharing) the `final_unet.pth` model (which corresponds to our best model, the U-Net model trained on the `augmented_dataset` of 3000 images) and put it in `models` (You can also download the whole `models` folder and replace the current empty one). Then, you can run the `run.ipynb` notebook to train, test and create the `submission.csv` file.
 As default, we commented the training part, so by running all, only the inference and the creation of the csv is performed. We recommend to run the notebook on Google Colab as it is the environment we used to train and test our models. Furthermore, the notebook is already set up to work on Google Colab.
 
 By downloading the whole models and dataset folders and replacing the currents ones, you can reproduce all our results (train, preform inference etc).
