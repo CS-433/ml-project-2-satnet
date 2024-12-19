@@ -52,10 +52,10 @@ Mahmoud Dokmak, Romain Corbel, Guilhem Destriau
       - `cnn_trainer.py`: implement the training process for CNN
       - `cnn_tuning.py`: implement the tuning process for CNN
       - `mask_to_submissions.py`: implement the submission process
-    - `ExploratoryDataAnalysis.ipynb`: jupyter notebook summarizing our data analysis
+    - `ExploratoryDataAnalysis.ipynb`: jupyter Notebook summarizing our initial steps in handling and exploring data
     - `random.ipynb`: jupyter notebook summarizing our random model
     - `LogisticRegressionfct.ipynb`: jupyter notebook summarizing our logistic regression models
-    - `run.ipynb`: jupyter notebook to run to train, test and submit the U-Net model. It is  the one to run to be able to reproduce our `submission.csv` file
+    - `run.ipynb`: jupyter notebook to run in order to train, test and submit the U-Net model. It is the one to run to be able to reproduce our `submission.csv` file
     - `report.pdf`: the report of our project
 
 ## Usage
